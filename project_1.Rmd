@@ -1,0 +1,66 @@
+---
+title: "Coursera Statistical Inference Project \\newline Part 1: Simulation exercise"
+author: "Learner42"
+date: "19/02/2015"
+output: pdf_document
+---
+
+# Abstract
+
+In this project we will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with ``rexp(n, lambda)`` where ``lambda`` is the rate parameter. The mean of exponential distribution is ``1/lambda`` and the standard deviation is also ``1/lambda``. Using this R function, we will generate a large amount of simulation, each simulation contains an equal number of samples. Based on the analysis of the sample averages, we will demonstrate that:
+
+1. The sample mean is approximately the theoretical mean of the distribution.
+2. The variance of the sample average is approximately the theoretical variance of the distribution.
+3. The distribution is approximately normal.
+
+# Simulations
+
+Let us do 1000 simulations with 40 samples per simulation as described above. We then compute and print out the sample mean and variance:
+
+```{r}
+lambda <- 0.2
+B <- 1000
+n <- 40
+set.seed(1) # important to be able to reproduce the results
+samples <- matrix(rexp(n*B, lambda), B, n)
+averages <- rowMeans(samples)
+# computation of the mean and variance
+sample_mean <- mean(averages)
+sample_variance <- var(averages)
+# print out the results
+sample_mean
+sample_variance
+```
+
+These values correspond indeed to theoretical values, i.e. the mean and the variance of $n$ independent and identically distributed (IID) exponentials:
+$$
+\mu = \frac{1}{\lambda} = \frac{1}{0.2} = 5 
+$$
+$$
+\sigma_{n}^2 = \frac{\sigma^2}{n}  = \frac{1}{\lambda^2 n} = \frac{1}{0.2^2 \times 40} = 0.625
+$$
+
+```{r}
+hist(averages, breaks=20, prob=TRUE, 
+     main="Simulated vs. theoretical distribution",
+     xlab="")
+xt <- seq(2, 8, length.out = 100)
+yt <- dnorm(xt, 5, sqrt(0.625))
+lines(xt, yt, col = 'red', lty=2, lwd = 2) ## theoretical normal distribution
+abline(v=sample_mean, lwd = 4)      ## sample mean
+abline(v=1/lambda, col = 'red', lty =2, lwd = 3) ## theoretical mean
+legend('topright', c("simulated density and mean", "theoretical density and mean"), 
+       lty=c(1,2), col=c("black", "red"))
+```
+
+In the above figure, the vertical lines for simulated and theoretical means coincide. Moreover, the histogram for the simulated means follows the theoretical density line, which supports our conclusion on the variation.
+
+# Central Limit Theorem
+
+The figure in the previous section already showed how the simulated density follows theoretical one, Gaussian $\mathcal{N}(5,0.625)$. We can further demonstrate this convergence by plotting the qq-plot:
+
+```{r}
+qqnorm(averages)
+qqline(averages)
+```
+The Q-Q plot shows clearly that the simulated distribution, i.e. average of 40 exponentials, follows a normal distribution; which is a result of the central limit theorem.
