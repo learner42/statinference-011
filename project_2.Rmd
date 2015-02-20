@@ -1,0 +1,43 @@
+---
+title: "Coursera Statistical Inference Project \\newline Part 2: Basic inferential data analysis"
+author: "Learner42"
+date: "19/02/2015"
+output: pdf_document
+---
+
+# Abstract
+
+Now in the second portion of the class, we're going to analyze the ToothGrowth data in the R datasets package. 
+Load the ToothGrowth data and perform some basic exploratory data analyses 
+
+* Provide a basic summary of the data.
+* Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+* State your conclusions and the assumptions needed for your conclusions. 
+
+# Load the data
+
+The data can be loaded via the usual commands.
+
+```{r}
+library(datasets)
+data(ToothGrowth)
+```
+
+# Summary 
+Via the help command ``?ToothGrowth`` we know that the dataset contains the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid). We can also use the ``str`` command to understand the structure of the data.
+
+```{r}
+str(ToothGrowth)
+```
+
+# Basic exploratory data analyses 
+
+As there are 3 dose levels (0.5, 1 and 2) and 2 delivery methods, we can gather basic statistics for these 3 combination. All data points can be seen by
+
+```{r}
+library(ggplot2)
+qplot(dose, len, data = ToothGrowth, color = supp)
+```
+
+With the histogram (first graph), we can see that the 60 observations are equally devided into the 6 combination of method-dose pair. As for the tooth length, we observe that there the tooth length is higher when the dose is higher. Also, delivery via OJ tends to produce faster tooth growth at with doses at 0.5 and 1.0. With the dose at 2.0 the different between the two method is less obvious.
+

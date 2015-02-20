@@ -15,7 +15,7 @@ In this project we will investigate the exponential distribution in R and compar
 
 # Simulations
 
-Let us do 1000 simulations with 40 samples per simulation as described above. We then compute and print out the sample mean and variance:
+Let us do 1000 simulations with 40 samples per simulation as described above. 
 
 ```{r}
 lambda <- 0.2
@@ -23,6 +23,11 @@ B <- 1000
 n <- 40
 set.seed(1) # important to be able to reproduce the results
 samples <- matrix(rexp(n*B, lambda), B, n)
+```
+# Analysis
+
+We then compute and print out the sample mean and variance:
+```{r}
 averages <- rowMeans(samples)
 # computation of the mean and variance
 sample_mean <- mean(averages)
@@ -40,6 +45,7 @@ $$
 \sigma_{n}^2 = \frac{\sigma^2}{n}  = \frac{1}{\lambda^2 n} = \frac{1}{0.2^2 \times 40} = 0.625
 $$
 
+We can also draw the histogram of the averages, as well as the theoretical normal distribution $\mathcal{N}(5,0.625)$ (via the `hist` and `lines` commands). The sample mean and theoretical mean are represented by a vertical line and a dashed vertical line (via the `abline` command).
 ```{r}
 hist(averages, breaks=20, prob=TRUE, 
      main="Simulated vs. theoretical distribution",
@@ -55,7 +61,7 @@ legend('topright', c("simulated density and mean", "theoretical density and mean
 
 In the above figure, the vertical lines for simulated and theoretical means coincide. Moreover, the histogram for the simulated means follows the theoretical density line, which supports our conclusion on the variation.
 
-# Central Limit Theorem
+## Central Limit Theorem
 
 The figure in the previous section already showed how the simulated density follows theoretical one, Gaussian $\mathcal{N}(5,0.625)$. We can further demonstrate this convergence by plotting the qq-plot:
 
