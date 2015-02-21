@@ -6,38 +6,86 @@ output: pdf_document
 ---
 
 # Abstract
-
-Now in the second portion of the class, we're going to analyze the ToothGrowth data in the R datasets package. 
-Load the ToothGrowth data and perform some basic exploratory data analyses 
-
-* Provide a basic summary of the data.
-* Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
-* State your conclusions and the assumptions needed for your conclusions. 
+In this project, we're going to analyze the ToothGrowth data in the R datasets package. After loading the dataset into R, explanatory analyses are carried out to determine the main trends in the data. In the second parts, statistical methods are applied to confirm or reject these trends.
 
 # Load the data
-
 The data can be loaded via the usual commands.
-
 ```{r}
 library(datasets)
 data(ToothGrowth)
 ```
-
-# Summary 
-Via the help command ``?ToothGrowth`` we know that the dataset contains the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid). We can also use the ``str`` command to understand the structure of the data.
-
-```{r}
-str(ToothGrowth)
-```
+Via the help command ``?ToothGrowth`` we know that the dataset contains the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid). 
 
 # Basic exploratory data analyses 
-
-As there are 3 dose levels (0.5, 1 and 2) and 2 delivery methods, we can gather basic statistics for these 3 combination. All data points can be seen by
-
+## Group tooth growth by ``method-dose`` pair
+As there are 3 dose levels (0.5, 1 and 2) and 2 delivery methods, we can gather basic statistics for these 3 combination. We can split the data per method-dose pair into ``s`` and count the appearances and compute the mean. There are 10 observations per pair.
 ```{r}
-library(ggplot2)
-qplot(dose, len, data = ToothGrowth, color = supp)
+s <- split(ToothGrowth$len, list(ToothGrowth$supp, ToothGrowth$dose))
+sapply(s, function(x) { c(count = length(x), mean=mean(x))})
 ```
 
-With the histogram (first graph), we can see that the 60 observations are equally devided into the 6 combination of method-dose pair. As for the tooth length, we observe that there the tooth length is higher when the dose is higher. Also, delivery via OJ tends to produce faster tooth growth at with doses at 0.5 and 1.0. With the dose at 2.0 the different between the two method is less obvious.
+## Graphical representation
+All data points can be seen via the following graph by
+```{r fig.width=8, fig.height=4}
+library(ggplot2)
+g <- ggplot(data = ToothGrowth, aes(x = dose, y = len, color = supp)) 
+g + geom_point() + geom_smooth(method = "lm")
+```
 
+## Short summary
+Via the grouping and the graphics above, we observe 2 main trends
+
+ * The tooth growth is higher when the dose is higher, providing the method is the same.
+ * Delivery via OJ tends to produce faster tooth growth than via VC, with doses at 0.5 and 1.0. With the doses of 2.0 the different between the two method seems to be insignificant.
+ 
+The mean per group obtained by applying ``sapply`` on the splitted data ``s`` seen previouly also confirms this trend.
+
+# Statistical analyses
+## Assumptions
+In this section, the trends observed in the previous section is evaluated formerly using statistical methods. The analyses are based on the techniques from this class. Regression models, which are also good candidates and are presented in another class of this series, are out of scope of this project.
+
+In order to draw conclusions about the effect of dose and delivery method on tooth growth, let us assume that the tested subects are representative of the species. Since there is no information regarding the order of the data, we consider the data in each of the method-dose pairs independent groups (no way to relate a particular guinea pig among the groups).
+
+## Effect of dose on tooth growth
+In this case we only consider tooth growth measurements obtain by the *same method* (OJ or VC). With each method, we compare the 2 pairs: tooth growth of ``dose 0.5`` vs. ``dose 1``; and ``dose 1`` vs. ``dose 2``. There are then 4 tests in total. 
+
+For example, let us consider the **VC method** with dose 0.5 and 1:
+
+ * Null hypothesis $\mu_0$: using a dose of 0.5 or 1.0 produces the same tooth growth.
+ * Alternative hypothesis $\mu_a$: A dose of 1.0 produce higher tooth growth than a dose of 0.5.
+
+Let us remind ourselves that the splitted data are stored in ``s``. We can than apply the ``t.test`` function to obtain the result
+
+```{r}
+t.test(s$VC.1, s$VC.0.5, paired = F, alt = "greater")$p.value
+```
+
+The result is way below the limit ($\alpha = 0.05$ for one sided test et 95% confidence), we can then reject the null hypothesis. In other words, with "Vitamin C" delivery method, a dose of 1.0 mg produces higher tooth growth than a dose of 0.5 mg.
+
+### Summary
+```{r echo=FALSE}
+get.p.value <- function(lab1, lab2) {
+  t.test(s[[lab1]], s[[lab2]], paired = F, alt = "greater")$p.value
+}
+```  
+
+| Group 1    | Group 2     | p-value                              | t-test outcome   | Conclusion
+|------------|-------------|--------------------------------------|------------------|---------------
+| VD - 1 mg  | VD - 0.5 mg | $`r get.p.value("VC.1",  "VC.0.5")`$ | Reject null hyp. | Group 1 produces higher tooth growth
+| VD - 2 mg  | VD - 1   mg | $`r get.p.value("VC.2",  "VC.1"  )`$ | Reject null hyp. | Group 1 produces higher tooth growth
+| OJ - 1 mg  | OJ - 0.5 mg | $`r get.p.value("OJ.1",  "OJ.0.5")`$ | Reject null hyp. | Group 1 produces higher tooth growth
+| OJ - 2 mg  | OJ - 1   mg | $`r get.p.value("OJ.2",  "OJ.1"  )`$ | Reject null hyp. | Group 1 produces higher tooth growth
+
+The hypotheses are the same as above, namely: null hypothesis: both groups produce the same effect; alternative hypothesis: Group 1 produces higher tooth growth. In all cases, we reject the null hypothesis: among the tested scenarios, **higher dose produces higher tooth growth**. 
+
+## Effect of delivery method on tooth growth
+In this case we only consider tooth growth measurements obtain with the *same dose*. With each dose, we compare the VC and OJ method: there are 3 tests in total. Same reasoning as the previous section.
+
+### Summary
+| Group 1     | Group 2     | p-value                              | t-test outcome   | Conclusion
+|-------------|-------------|--------------------------------------|------------------|---------------
+| OJ - 0.5 mg | VD - 0.5 mg | $`r get.p.value("OJ.0.5",  "VC.0.5")`$ | Reject null hyp. | Group 1 produces higher tooth growth
+| OJ - 1   mg | VD - 1   mg | $`r get.p.value("OJ.1",    "VC.1"  )`$ | Reject null hyp. | Group 1 produces higher tooth growth
+| OJ - 2   mg | VD - 2   mg | $`r get.p.value("OJ.2",    "VC.2")`$ | Accept null hyp. | Both groups produces the same effect
+
+At smaller doses, i.e. 0.5 and 1 mg, "orange juice" method produces higher tooth growth than the "vitamin C" method. At higher dose (2 mg) both methods are equally effective.
