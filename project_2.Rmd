@@ -8,6 +8,8 @@ output: pdf_document
 # Abstract
 In this project, we're going to analyze the ToothGrowth data in the R datasets package. After loading the dataset into R, explanatory analyses are carried out to determine the main trends in the data. In the second parts, statistical methods are applied to confirm or reject these trends.
 
+The source code to this report is hosted on [github](https://github.com/learner42/statinference-011/blob/master/project_2.Rmd).
+
 # Load the data
 The data can be loaded via the usual commands.
 ```{r}

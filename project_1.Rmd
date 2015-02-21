@@ -13,6 +13,8 @@ In this project we will investigate the exponential distribution in R and compar
 2. The variance of the sample average is approximately the theoretical variance of the distribution.
 3. The distribution is approximately normal.
 
+The source code to this report is hosted on [github](https://github.com/learner42/statinference-011/blob/master/project_1.Rmd).
+
 # Simulations
 
 Let us do 1000 simulations with 40 samples per simulation as described above. 
